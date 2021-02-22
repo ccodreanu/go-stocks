@@ -12,7 +12,7 @@ type SymbolModel struct {
 }
 
 func (m SymbolModel) All() ([]Symbol, error) {
-	rows, err := m.DB.Query("SELECT * FROM books")
+	rows, err := m.DB.Query("SELECT * FROM symbols")
 	if err != nil {
 		return nil, err
 	}
