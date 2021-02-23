@@ -6,7 +6,7 @@ import (
 	"log"
 
 	"catadev.com/stocks/models"
-	"github.com/antchfx/htmlquery"
+	"catadev.com/stocks/parser"
 
 	_ "github.com/lib/pq"
 )
@@ -17,17 +17,9 @@ type Env struct {
 }
 
 func main() {
-	doc, err := htmlquery.LoadURL("https://finance.yahoo.com/quote/VUSA.AS")
-	if err != nil {
-		log.Fatalln("error getting stock")
-	}
+	current, err := parser.FetchValue("VUSA.AS")
 
-	nodes, err := htmlquery.QueryAll(doc, `//*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]`)
-	if err != nil {
-		panic(`not a valid XPath expression.`)
-	}
-
-	fmt.Println(htmlquery.InnerText(nodes[0]))
+	fmt.Println(current)
 
 	db, err := sql.Open("postgres", "postgres://postgres:password@localhost/stocks?sslmode=disable")
 	if err != nil {
@@ -55,7 +47,7 @@ func (env *Env) symbolsAll() {
 	}
 
 	for _, symbol := range symbols {
-		fmt.Printf("%s, %s", symbol.Symbol, symbol.Currency)
+		fmt.Printf("%s, %s\n", symbol.Symbol, symbol.Currency)
 	}
 }
 
@@ -68,6 +60,6 @@ func (env *Env) valuesAll(symbol models.Symbol) {
 	}
 
 	for _, value := range values {
-		fmt.Printf("%s, %f, %s", value.Symbol, value.Value, value.Timestamp)
+		fmt.Printf("%s, %f, %s\n", value.Symbol, value.Value, value.Timestamp)
 	}
 }

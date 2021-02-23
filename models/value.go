@@ -5,16 +5,19 @@ import (
 	"time"
 )
 
+// Value represents a value for a symbol.
 type Value struct {
 	Symbol    string
 	Timestamp time.Time
 	Value     float32
 }
 
+// ValueModel is the wrapper for the DB.
 type ValueModel struct {
 	DB *sql.DB
 }
 
+// All fetches all the values over time for a symbol.
 func (m ValueModel) All(symbol Symbol) ([]Value, error) {
 	rows, err := m.DB.Query("SELECT * FROM values WHERE symbol = $1", symbol.Symbol)
 	if err != nil {
