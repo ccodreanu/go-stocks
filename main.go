@@ -13,6 +13,7 @@ import (
 
 type Env struct {
 	symbols models.SymbolModel
+	values  models.ValueModel
 }
 
 func main() {
@@ -35,9 +36,14 @@ func main() {
 
 	env := &Env{
 		symbols: models.SymbolModel{DB: db},
+		values:  models.ValueModel{DB: db},
 	}
 
 	env.symbolsAll()
+
+	vusa := models.Symbol{Symbol: "VUSA.AS", Currency: "EUR"}
+
+	env.valuesAll(vusa)
 }
 
 func (env *Env) symbolsAll() {
@@ -50,5 +56,18 @@ func (env *Env) symbolsAll() {
 
 	for _, symbol := range symbols {
 		fmt.Printf("%s, %s", symbol.Symbol, symbol.Currency)
+	}
+}
+
+func (env *Env) valuesAll(symbol models.Symbol) {
+	// Execute the SQL query by calling the All() method.
+	values, err := env.values.All(symbol)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	for _, value := range values {
+		fmt.Printf("%s, %f, %s", value.Symbol, value.Value, value.Timestamp)
 	}
 }
