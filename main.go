@@ -33,9 +33,7 @@ func main() {
 
 	env.symbolsAll()
 
-	vusa := models.Symbol{Symbol: "VUSA.AS", Currency: "EUR"}
-
-	env.valuesAll(vusa)
+	env.valuesAll("VUSA.AS")
 }
 
 func (env *Env) symbolsAll() {
@@ -51,7 +49,7 @@ func (env *Env) symbolsAll() {
 	}
 }
 
-func (env *Env) valuesAll(symbol models.Symbol) {
+func (env *Env) valuesAll(symbol string) {
 	// Execute the SQL query by calling the All() method.
 	values, err := env.values.All(symbol)
 	if err != nil {

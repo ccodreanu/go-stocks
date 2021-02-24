@@ -23,5 +23,5 @@ func FetchValue(symbol string) (models.Value, error) {
 
 	value, _ := strconv.ParseFloat(htmlquery.InnerText(nodes[0]), 32)
 
-	return models.Value{Symbol: symbol, Value: float32(value), Timestamp: time.Now().UTC()}, errors.New("general error")
+	return models.Value{Symbol: symbol, Value: float32(value), Timestamp: time.Now().UTC()}, nil
 }

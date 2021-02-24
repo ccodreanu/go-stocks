@@ -18,8 +18,8 @@ type ValueModel struct {
 }
 
 // All fetches all the values over time for a symbol.
-func (m ValueModel) All(symbol Symbol) ([]Value, error) {
-	rows, err := m.DB.Query("SELECT * FROM values WHERE symbol = $1", symbol.Symbol)
+func (m ValueModel) All(symbol string) ([]Value, error) {
+	rows, err := m.DB.Query("SELECT * FROM values WHERE symbol = $1", symbol)
 	if err != nil {
 		return nil, err
 	}
