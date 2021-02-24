@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 	"sync"
 
@@ -14,6 +13,7 @@ import (
 
 type Env struct {
 	symbols models.SymbolModel
+	values  models.ValueModel
 }
 
 func main() {
@@ -24,6 +24,7 @@ func main() {
 
 	env := &Env{
 		symbols: models.SymbolModel{DB: db},
+		values:  models.ValueModel{DB: db},
 	}
 
 	symbols, err := env.symbols.All()
@@ -35,19 +36,21 @@ func main() {
 
 	for _, s := range symbols {
 		wg.Add(1)
-		go fetch(s.Symbol, &wg)
+		go fetch(s.Symbol, env, &wg)
 	}
 
 	wg.Wait()
 
 }
 
-func fetch(s string, wg *sync.WaitGroup) {
+func fetch(s string, env *Env, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	v, err := parser.FetchValue(s)
 	if err != nil {
-		log.Fatal(err)
+		log.Printf("cannot fetch %s", s)
+		return
 	}
-	fmt.Println(v)
+
+	env.values.Insert(s, v.Value)
 }

@@ -43,3 +43,13 @@ func (m ValueModel) All(symbol string) ([]Value, error) {
 
 	return values, nil
 }
+
+func (m ValueModel) Insert(symbol string, value float32) error {
+	rows, err := m.DB.Query(`INSERT INTO values ("symbol", "value", "timestamp") values ($1, $2, CURRENT_TIMESTAMP)`, symbol, value)
+	if err != nil {
+		return err
+	}
+	defer rows.Close()
+
+	return nil
+}

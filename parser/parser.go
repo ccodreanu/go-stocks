@@ -17,8 +17,8 @@ func FetchValue(symbol string) (models.Value, error) {
 	}
 
 	nodes, err := htmlquery.QueryAll(doc, `//*[@id="quote-header-info"]/div[3]/div[1]/div/span[1]`)
-	if err != nil {
-		return models.Value{}, errors.New("not a valid XPath expression")
+	if err != nil || nodes == nil {
+		return models.Value{}, errors.New("cannot fetch value")
 	}
 
 	value, _ := strconv.ParseFloat(htmlquery.InnerText(nodes[0]), 32)

@@ -37,6 +37,7 @@ ALTER TABLE public.symbols OWNER TO postgres;
 --
 
 CREATE TABLE public."values" (
+    id integer NOT NULL,
     symbol character varying(16) NOT NULL,
     value real NOT NULL,
     "timestamp" timestamp without time zone NOT NULL
@@ -44,6 +45,35 @@ CREATE TABLE public."values" (
 
 
 ALTER TABLE public."values" OWNER TO postgres;
+
+--
+-- Name: values_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.values_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.values_id_seq OWNER TO postgres;
+
+--
+-- Name: values_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.values_id_seq OWNED BY public."values".id;
+
+
+--
+-- Name: values id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."values" ALTER COLUMN id SET DEFAULT nextval('public.values_id_seq'::regclass);
+
 
 --
 -- Name: symbols stocks_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
@@ -58,7 +88,7 @@ ALTER TABLE ONLY public.symbols
 --
 
 ALTER TABLE ONLY public."values"
-    ADD CONSTRAINT values_pkey PRIMARY KEY (symbol);
+    ADD CONSTRAINT values_pkey PRIMARY KEY (id);
 
 
 --

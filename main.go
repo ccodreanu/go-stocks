@@ -34,6 +34,8 @@ func main() {
 	env.symbolsAll()
 
 	env.valuesAll("VUSA.AS")
+
+	env.values.Insert("NIO", 25.5)
 }
 
 func (env *Env) symbolsAll() {
