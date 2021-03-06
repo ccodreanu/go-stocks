@@ -7,4 +7,4 @@ services:
     environment:
     - POSTGRES_PASSWORD=password
     volumes:
-    - ./data:/var/lib/postgresql/data
+    - ./tmp/data:var/lib/postgresql/data
