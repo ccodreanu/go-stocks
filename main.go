@@ -2,25 +2,25 @@ package main
 
 import (
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
+	"time"
 
 	"catadev.com/stocks/models"
-	"catadev.com/stocks/parser"
 
+	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 )
 
+// Env adds the dependencies
 type Env struct {
 	symbols models.SymbolModel
 	values  models.ValueModel
 }
 
 func main() {
-	current, err := parser.FetchValue("VUSA.AS")
-
-	fmt.Println(current)
-
 	db, err := sql.Open("postgres", "postgres://postgres:password@localhost/stocks?sslmode=disable")
 	if err != nil {
 		log.Fatal(err)
@@ -31,35 +31,49 @@ func main() {
 		values:  models.ValueModel{DB: db},
 	}
 
-	env.symbolsAll()
+	r := mux.NewRouter()
+	r.HandleFunc("/symbols", env.SymbolsHandler)
+	r.HandleFunc("/values", env.ValuesHandler)
+	r.Use(loggingMiddleware)
+	http.Handle("/", r)
 
-	env.valuesAll("VUSA.AS")
+	s := &http.Server{
+		Addr:         ":9999",
+		Handler:      r,
+		WriteTimeout: 15 * time.Second,
+		ReadTimeout:  15 * time.Second,
+	}
 
-	env.values.Insert("NIO", 25.5)
+	log.Fatal(s.ListenAndServe())
 }
 
-func (env *Env) symbolsAll() {
-	// Execute the SQL query by calling the All() method.
+func loggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		log.Println(r.RequestURI, r.UserAgent())
+		next.ServeHTTP(w, r)
+	})
+}
+
+// SymbolsHandler handles the index
+func (env *Env) SymbolsHandler(w http.ResponseWriter, r *http.Request) {
 	symbols, err := env.symbols.All()
 	if err != nil {
 		log.Println(err)
+		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-
-	for _, symbol := range symbols {
-		fmt.Printf("%s, %s\n", symbol.Symbol, symbol.Currency)
-	}
+	json, err := json.Marshal(symbols)
+	fmt.Fprintf(w, string(json))
 }
 
-func (env *Env) valuesAll(symbol string) {
-	// Execute the SQL query by calling the All() method.
-	values, err := env.values.All(symbol)
+// ValuesHandler handles the index
+func (env *Env) ValuesHandler(w http.ResponseWriter, r *http.Request) {
+	symbols, err := env.values.All("NIO")
 	if err != nil {
 		log.Println(err)
+		http.Error(w, http.StatusText(500), 500)
 		return
 	}
-
-	for _, value := range values {
-		fmt.Printf("%s, %f, %s\n", value.Symbol, value.Value, value.Ts)
-	}
+	json, err := json.Marshal(symbols)
+	fmt.Fprintf(w, string(json))
 }
