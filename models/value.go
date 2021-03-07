@@ -7,9 +7,9 @@ import (
 
 // Value represents a value for a symbol.
 type Value struct {
-	Symbol    string
-	Timestamp time.Time
-	Value     float32
+	Symbol string
+	Ts     time.Time
+	Value  float32
 }
 
 // ValueModel is the wrapper for the DB.
@@ -30,7 +30,7 @@ func (m ValueModel) All(symbol string) ([]Value, error) {
 	for rows.Next() {
 		var value Value
 
-		err := rows.Scan(&value.Symbol, &value.Value, &value.Timestamp)
+		err := rows.Scan(&value.Symbol, &value.Value, &value.Ts)
 		if err != nil {
 			return nil, err
 		}
@@ -45,7 +45,7 @@ func (m ValueModel) All(symbol string) ([]Value, error) {
 }
 
 func (m ValueModel) Insert(symbol string, value float32) error {
-	rows, err := m.DB.Query(`INSERT INTO values ("symbol", "value", "timestamp") values ($1, $2, CURRENT_TIMESTAMP)`, symbol, value)
+	rows, err := m.DB.Query(`INSERT INTO values ("symbol", "value", "ts") values ($1, $2, CURRENT_TIMESTAMP)`, symbol, value)
 	if err != nil {
 		return err
 	}

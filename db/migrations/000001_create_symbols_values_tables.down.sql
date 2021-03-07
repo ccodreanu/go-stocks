@@ -1,0 +1,2 @@
+DROP TABLE IF EXISTS values;
+DROP TABLE IF EXISTS symbols;

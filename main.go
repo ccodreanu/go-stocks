@@ -60,6 +60,6 @@ func (env *Env) valuesAll(symbol string) {
 	}
 
 	for _, value := range values {
-		fmt.Printf("%s, %f, %s\n", value.Symbol, value.Value, value.Timestamp)
+		fmt.Printf("%s, %f, %s\n", value.Symbol, value.Value, value.Ts)
 	}
 }
