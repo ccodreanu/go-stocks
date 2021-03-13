@@ -3,6 +3,7 @@ package models
 import "database/sql"
 
 type Symbol struct {
+	Id       int
 	Symbol   string
 	Currency string
 }
@@ -23,7 +24,7 @@ func (m SymbolModel) All() ([]Symbol, error) {
 	for rows.Next() {
 		var symbol Symbol
 
-		err := rows.Scan(&symbol.Symbol, &symbol.Currency)
+		err := rows.Scan(&symbol.Id, &symbol.Symbol, &symbol.Currency)
 		if err != nil {
 			return nil, err
 		}

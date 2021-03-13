@@ -33,8 +33,9 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/symbols", env.SymbolsHandler)
-	r.HandleFunc("/values", env.ValuesHandler)
+	r.HandleFunc("/values/{symbol}", env.ValuesHandler)
 	r.Use(loggingMiddleware)
+	r.Use(mux.CORSMethodMiddleware(r))
 	http.Handle("/", r)
 
 	s := &http.Server{
@@ -49,12 +50,12 @@ func main() {
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		log.Println(r.RequestURI, r.UserAgent())
+		log.Println(r.RequestURI, r.RemoteAddr)
 		next.ServeHTTP(w, r)
 	})
 }
 
-// SymbolsHandler handles the index
+// SymbolsHandler handles the symbols endpoint
 func (env *Env) SymbolsHandler(w http.ResponseWriter, r *http.Request) {
 	symbols, err := env.symbols.All()
 	if err != nil {
@@ -63,12 +64,15 @@ func (env *Env) SymbolsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json, err := json.Marshal(symbols)
+
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	fmt.Fprintf(w, string(json))
 }
 
-// ValuesHandler handles the index
+// ValuesHandler handles the values endpoint
 func (env *Env) ValuesHandler(w http.ResponseWriter, r *http.Request) {
-	symbols, err := env.values.All("NIO")
+	vars := mux.Vars(r)
+	symbols, err := env.values.All(vars["symbol"])
 	if err != nil {
 		log.Println(err)
 		http.Error(w, http.StatusText(500), 500)
